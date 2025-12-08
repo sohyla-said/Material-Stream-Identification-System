@@ -31,6 +31,7 @@ MSI_project/
 │
 ├── requirements.txt          # Python dependencies
 ├── Readme.md                 # Project documentation
+├── requirements.txt          # Project depenedencies
 └── .gitignore  
 ```
 
@@ -39,7 +40,11 @@ MSI_project/
 ## 🚀 How to Run
 
 1. **Place the dataset:**  
-   Download or copy your waste image dataset and put the `dataset/` folder inside the project root directory.
+   Download the dataset zip file and unzip it or copy your waste image dataset and put the `dataset/` folder inside the project root directory.
+   You can download the waste image dataset from the following link:  
+   [Google Drive Dataset Folder](https://drive.google.com/drive/folders/1QE663fRIempGreUtxr4iLREmZIK4q8L7?usp=sharing)
+
+   
 
 2. **Intsall required dependencies**
    In the terminal execute:
