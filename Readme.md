@@ -19,10 +19,12 @@ MSI_project/
 │
 ├── dataset/                  # Original images, organized by class
 ├── corrupted_images/         # Corrupted images moved from the original dataset
-├── dataset_augmented/        # Augmented images, organized by class
+├── dataset_split/            # Dataset splitted into train and test folders, Augmented train images, organized by class
+├── models/                   # 
 │
 ├── notebooks/                
 │   ├── EDA.ipynb             # EDA and preprocessing notebook
+│   ├── Models.ipynb          # Models training notebook
 │   
 ├── src/                      # Source code
 │   ├── augmentation.py       # Data augmentation pipeline
@@ -66,6 +68,8 @@ MSI_project/
    ```bash
    python src/feature_extraction.py
    ```
+6. **Run the Models notebook:**  
+   Open the Modles notebook (`notebooks/Models.ipynb`) in Jupyter or VS Code and run all cells to extract feature vectors and train SVM and KNN models.
 
 ---
 

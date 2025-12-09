@@ -5,14 +5,15 @@ import shutil
 
 
 augmentations = transforms.Compose([
-    transforms.RandomRotation(20),  # Rotate the image randomly in the range of (-20, +20) 
+    transforms.Resize((384, 512)),
+    transforms.RandomRotation(10),  # Rotate the image randomly in the range of (-20, +20) 
     transforms.RandomHorizontalFlip(),  # Flip the image horizontally
     transforms.ColorJitter(brightness=0.2, contrast=0.2),   # Randomly change the brightness, contrast
-    transforms.RandomResizedCrop(
-        size=(384, 512),    # image size
-        scale=(0.8, 1.2),   # 0.8 -> zoom-out, 1.0 -> original, 1.2 -> zoom-n
-        ratio=(4/3, 4/3),   # fixed aspect ratio for 512*384
-    ),
+    # transforms.RandomResizedCrop(
+    #     size=(384, 512),    # image size
+    #     scale=(0.8, 1.2),   # 0.8 -> zoom-out, 1.0 -> original, 1.2 -> zoom-n
+    #     ratio=(4/3, 4/3),   # fixed aspect ratio for 512*384
+    # ),
 ])
 
 # directory of the original dataset
