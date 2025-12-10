@@ -21,17 +21,18 @@ MSI_project/
 ├── corrupted_images/         # Corrupted images moved from the original dataset
 ├── dataset_split/            # Dataset splitted into train and test folders, Augmented train images, organized by class
 ├── models/                   # Extracted Features and class labels after performing feature extraction
+│   ├── deployment/           # Saved SVM model, scaler and threshold for real-time application
 │
 ├── notebooks/                
 │   ├── EDA.ipynb             # EDA and preprocessing notebook
-│   ├── Models.ipynb          # Models training notebook
+│   ├── Models.ipynb          # Models training notebook + Handling the “Unknown” Class
 │   
 ├── src/                      # Source code
 │   ├── data_augmentation.py  # Data augmentation pipeline
 │   ├── feature_extraction.py # Feature extraction (HOG, LBP, Color Histogram)
+│   ├── real_time_svm_app.py  # Real-time SVM classification application
 │
 │
-├── requirements.txt          # Python dependencies
 ├── Readme.md                 # Project documentation
 ├── requirements.txt          # Project depenedencies
 └── .gitignore  
@@ -71,9 +72,25 @@ MSI_project/
 6. **Run the Models notebook:**  
    Open the Modles notebook (`notebooks/Models.ipynb`) in Jupyter or VS Code and run all cells to extract feature vectors and train SVM and KNN models.
 
+7. **Run the real-time SVM classification application:**  
+   In the terminal, execute the following command from the project root directory:  
+   ```bash
+   python src/real_time_svm_app.py
+
+### Webcam Usage Tips
+
+- On **Windows**, ensure Python has camera access:  
+  **Settings > Privacy & Security > Camera**  
+  Enable:  
+  - Camera access  
+  - Allow apps and desktop apps to access the camera  
+  - Confirm Python is listed and granted permission
+
+- Close any other applications using the webcam before running the app to avoid conflicts.
+
 ---
 
-## 🎯 Data Augmentation Strategy
+# 🎯 Data Augmentation Strategy
 Apply data augmentation techniques to the provided dataset to artificially increase the training sample size by a minimum of 30%.
 - The augmentations are designed to simulate real-world variations such as lighting, orientation, scale, and viewpoint changes.  
 - These conditions commonly occur in recycling facilities and affect model robustness.
@@ -160,3 +177,42 @@ These general features transfer extremely well to the **MSI waste classification
 It provides fixed-length, compact, **512-dimensional** feature vectors, which is a requirement
 
 ---
+
+# 🛠 Model Architecture and Implementation
+
+### Support Vector Machine (SVM) Classifier
+- Implemented an SVM classifier using scikit-learn’s `SVC` with RBF kernel.
+- Input to the SVM is the 512-dimensional feature vector extracted from images using a pretrained ResNet-18 model.
+- Hyperparameters such as `C` and `gamma` were tuned via grid search with stratified 5-fold cross-validation.
+- Final model uses parameters:  
+  `kernel='rbf'`, `C=5`, `gamma='auto'`.
+- A confidence-based rejection mechanism was added:  
+  Predictions with confidence (maximum class probability) below an optimized threshold are assigned the label **"unknown" (ID 6)** to avoid misclassification of uncertain samples.
+
+### k-Nearest Neighbors (k-NN) Classifier
+- Implemented a k-NN classifier with distance-weighted voting (`weights='distance'`), using the Euclidean distance metric.
+- Hyperparameters such as `n_neighbors` and distance metric were tuned using grid search.
+- A rejection mechanism was designed based on inverse mean distance confidence:  
+  Predictions with confidence below a threshold are labeled as **"unknown" (ID 6)**.
+
+---
+
+# 🚦 Handling the “Unknown” Class (ID 6)
+
+- Both classifiers include a rejection mechanism that assigns the label `6` for the unknown class.
+- The rejection threshold is optimized based on validation data:
+  - For **SVM**, the threshold is derived from the 10th percentile confidence of correctly predicted samples.
+  - For **k-NN**, the threshold is based on inverse mean distance confidence of correctly classified samples minus a margin.
+- This mechanism ensures the system only classifies samples with sufficient confidence, improving reliability by explicitly rejecting uncertain predictions.
+
+---
+
+# 🚀 System Deployment — Real-Time Classification Application
+
+- The best-performing SVM model (with scaler and threshold) is integrated into a real-time waste classification application.
+- The app captures live frames from a webcam.
+- Each frame is processed through the same ResNet-18 feature extractor pipeline used during training.
+- Extracted features are scaled and fed to the SVM classifier with rejection.
+- Classification results with confidence scores are displayed live on the video feed.
+- Unknown or uncertain predictions are clearly indicated to avoid misleading outputs.
+- The real-time app can be run via `src/real_time_svm_app.py`.
