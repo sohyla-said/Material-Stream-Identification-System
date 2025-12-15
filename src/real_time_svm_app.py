@@ -6,7 +6,6 @@ import os
 import sys
 from PIL import Image
 import torch
-# import feature_extraction
 sys.path.append(os.path.abspath("src"))
 from feature_extraction import preprocess_images, model as feature_model, device
 
@@ -27,7 +26,6 @@ def svm_predict_with_rejection(model, x, threshold, unknown_label=6):
     max_probs = np.max(probs, axis=1)       # confidence
     preds = np.argmax(probs, axis=1)        # predicted class
     final_preds = np.where(max_probs >= threshold, preds, unknown_label)
-
     return final_preds, max_probs
 
 # Real-time Feature Extraction 
@@ -63,12 +61,7 @@ def run_realtime_svm():
 
         feature_scaled = scaler.transform(feature)
 
-        preds, confs = svm_predict_with_rejection(
-            svm_model,
-            feature_scaled,
-            svm_threshold,
-            unknown_label=UNKNOWN_LABEL
-        )
+        preds, confs = svm_predict_with_rejection(svm_model, feature_scaled, svm_threshold, unknown_label=UNKNOWN_LABEL)
 
         pred_id = int(preds[0])
         conf = float(confs[0])
