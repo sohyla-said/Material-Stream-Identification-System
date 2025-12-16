@@ -1,6 +1,6 @@
 import os, numpy as np
 import torch    # used for deep learning operations
-from torchvision import models, transforms      # torchvision.models -> contains pretrained models like ResNet-18
+from torchvision import models, transforms      # torchvision.models -> contains pretrained models like ResNet-18, ResNet-50
                                                 # transforms -> tools for resizing, normalizing images
 from PIL import Image
 import glob     # for listing files in drirectory patterns
@@ -12,12 +12,12 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 ##############################################
 
-# load pretrained ResNet-18
+# load pretrained ResNet-50
 # this model usually ends with classification but we just need the feature extractor
-model = models.resnet18(pretrained = True)
+model = models.resnet50(pretrained = True)
 
 # remove the final classification layer
-# the model now outputs a 512-dimensional feature vector
+# the model now outputs a 2048-dimensional feature vector
 model = torch.nn.Sequential(*list(model.children())[:-1])
 
 # move model to CPU/GPU
@@ -25,7 +25,7 @@ model.to(device).eval()
 
 ##############################################
 
-# required preprocessing for ResNet-18
+# required preprocessing for ResNet-50
 # this ensures the images look like the images ResNet was trained on
 preprocess_images = transforms.Compose([
     transforms.Resize((224, 224)),
@@ -43,12 +43,12 @@ os.makedirs("models", exist_ok= True)
 ##############################################
 
 # read images (training or testing)
-# run the images throush ResNet-18
-# save NPZ files containg: Feature vectors (512-D), class labels
+# run the images throush ResNet-50
+# save NPZ files containg: Feature vectors (2048-D), class labels
 def extract_split(split_type):
     print(f"Extracting {split_type} features:")
 
-    file_prefix = f"{split_type}_resnet18"
+    file_prefix = f"{split_type}_resnet50"
 
     dataset_dir = f"dataset_split/{split_type}"
 
@@ -69,8 +69,8 @@ def extract_split(split_type):
                 img = preprocess_images(image).unsqueeze(0).to(device)
 
                 with torch.no_grad():
-                    # run image throush ResNet model, output shape -> (1, 512, 1, 1)
-                    # squeeze to make the shape -> (512,)
+                    # run image throush ResNet model, output shape -> (1, 2048, 1, 1)
+                    # squeeze to make the shape -> (2048,)
                     feature = model(img).squeeze().cpu().numpy()
                 
                 # save the results

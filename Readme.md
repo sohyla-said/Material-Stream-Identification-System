@@ -134,7 +134,7 @@ This values creates noticeable but **not extreme** lighting changes.
 
 ---
 
-# Feature Extraction – CNN (ResNet-18)
+# Feature Extraction – CNN (ResNet-50)
 
 This section documents the **feature extraction pipeline** used in the Material Stream Identification (MSI) project.  
 The goal convert the raw 2D or 3D image data into a 1D numerical feature vector **(a fixed-length list of numbers)**. suitable for classical machine learning models such as **SVM** and **k-NN**.
@@ -158,14 +158,17 @@ A Convolutional Neural Network (CNN) automatically learns multi-level feature re
 
 This hierarchical learning makes CNN features far more powerful and robust than manual descriptors.
 
-## Why ResNet-18?
-ResNet-18 is widely used for feature extraction because:
-✔ It is not too large (fast, lightweight, low GPU requirements)
-✔ It is deep enough to capture meaningful semantic information
+## Why ResNet-50?
+ResNet-50 is widely used for feature extraction because:
+✔ It is deeper (50 layer), so it learns more abstract features
+✔ It captures fine material cues (metal shine, glass reflections, plastic texture)
 ✔ It has residual connections, making training more stable
 ✔ It is pretrained on ImageNet, a massive dataset of 1.2M images
+✔ Usually gives higher classification accuracy, especially when:
+   - Classes overlap visually
+   - Dataset is complex (trash, plastic, metal)
 
-This pretraining allows ResNet-18 to learn:
+This pretraining allows ResNet-50 to learn:
 - general edges
 - materials
 - object categories
@@ -174,7 +177,7 @@ This pretraining allows ResNet-18 to learn:
 
 These general features transfer extremely well to the **MSI waste classification** problem, even with a relatively small dataset.
 
-It provides fixed-length, compact, **512-dimensional** feature vectors, which is a requirement
+It provides fixed-length, compact, **2048-dimensional** feature vectors, which is a requirement, more discriminative and better for SVM/KNN seperation.
 
 ---
 
@@ -182,7 +185,7 @@ It provides fixed-length, compact, **512-dimensional** feature vectors, which is
 
 ### Support Vector Machine (SVM) Classifier
 - Implemented an SVM classifier using scikit-learn’s `SVC` with RBF kernel.
-- Input to the SVM is the 512-dimensional feature vector extracted from images using a pretrained ResNet-18 model.
+- Input to the SVM is the 2048-dimensional feature vector extracted from images using a pretrained ResNet-50 model.
 - Hyperparameters such as `C` and `gamma` were tuned via grid search with stratified 5-fold cross-validation.
 - Final model uses parameters:  
   `kernel='rbf'`, `C=5`, `gamma='auto'`.
@@ -211,7 +214,7 @@ It provides fixed-length, compact, **512-dimensional** feature vectors, which is
 
 - The best-performing SVM model (with scaler and threshold) is integrated into a real-time waste classification application.
 - The app captures live frames from a webcam.
-- Each frame is processed through the same ResNet-18 feature extractor pipeline used during training.
+- Each frame is processed through the same ResNet-50 feature extractor pipeline used during training.
 - Extracted features are scaled and fed to the SVM classifier with rejection.
 - Classification results with confidence scores are displayed live on the video feed.
 - Unknown or uncertain predictions are clearly indicated to avoid misleading outputs.
