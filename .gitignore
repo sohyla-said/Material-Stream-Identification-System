@@ -3,3 +3,4 @@ dataset_split/
 corrupted_images/
 models/
 __pycache__/
+test_images/
