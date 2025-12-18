@@ -1,4 +1,4 @@
-from src.test import predict
+from test import predict
 
 
 preds = predict(
